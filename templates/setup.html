@@ -1,3 +1,7 @@
+%def extra_head():
+
+%end
+
 <p>
     In order to get stats from oDesk you need to follow few simple steps.
 </p>
@@ -131,4 +135,4 @@
     </table>
 </div>
 
-%rebase templates/base.html title=title
+%rebase templates/base.html title=title, extra_head=extra_head

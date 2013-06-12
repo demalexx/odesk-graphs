@@ -1,5 +1,6 @@
 from os.path import isfile
 from datetime import datetime, timedelta, date
+from random import choice, randint
 from dateutil.relativedelta import relativedelta
 from json import dumps, loads
 
@@ -188,6 +189,31 @@ class ODeskStats(object):
 
             res_data[worked_on_date][team_id] = {u'hours': hours,
                                                  u'earnings': earnings}
+
+        return res_data, res_teams
+
+    def _get_fake_data(self, from_date, to_date):
+        res_data = {}
+        res_teams = {u'google': u'Google',
+                     u'fb': u'Facebook',
+                     u'li': u'LinkedIn',
+                     u'apple': u'Apple'}
+
+        d = from_date
+        while d < to_date:
+            res_data[d] = {}
+
+            teams_to_choice = res_teams.copy()
+            for i in range(randint(1, 3)):
+                team_key = choice(teams_to_choice.keys())
+
+                hours = randint(1, 4)
+                res_data[d][team_key] = {u'hours': hours,
+                                         u'earnings': hours * randint(15, 25)}
+
+                del teams_to_choice[team_key]
+
+            d += timedelta(days=randint(1, 3))
 
         return res_data, res_teams
 
@@ -515,13 +541,13 @@ def setup():
 
             steps[u'last'][u'user_info'] = get_logged_user_info()
         else:
-            client = Client(CONFIG[u'key'], CONFIG['secret'], auth=u'oauth')
+            client = Client(CONFIG[u'key'], CONFIG[u'secret'], auth=u'oauth')
             steps[u'authorize'][u'authorize_url'] = \
                 client.auth.get_authorize_url(u'%s://%s/auth-callback' %
                                               (request.urlparts.scheme, request.urlparts.netloc))
 
-            response.set_cookie(u'request_token', client.auth.request_token)
-            response.set_cookie(u'request_token_secret', client.auth.request_token_secret)
+            response.set_cookie('request_token', client.auth.request_token)
+            response.set_cookie('request_token_secret', client.auth.request_token_secret)
 
     if request.method == u'POST':
         CONFIG[u'key'] = request.forms.get(u'key')
