@@ -1,0 +1,430 @@
+%def extra_head():
+    <script type="text/javascript">
+        $(function () {
+            var common_settings = {
+                'dateFormat': 'dd.mm.yyyy',
+                'firstDay': 1,
+                'yearRange': '-0:-10',
+                'selectDefaultDate': true,
+                'showAnim': 'fadeIn',
+                'showSpeed': 'fast',
+            };
+
+            var from_date_settings = $.extend({
+                'defaultDate': '-3m',
+            }, common_settings);
+
+            var to_date_settings = $.extend({
+
+            }, common_settings);
+
+            $('#from_date').datepick(from_date_settings);
+            $('#to_date').datepick(to_date_settings);
+        });
+    </script>
+
+    %if data:
+        <script type="text/javascript">
+            $(function () {
+                $('#graph-hours-by-days').highcharts({
+                    chart: {
+                        type: 'column',
+                        zoomType: 'x'
+                    },
+                    title: {
+                        text: 'Workload by days'
+                    },
+                    xAxis: {
+                        type: 'datetime',
+                        dateTimeLabelFormats: {
+                            month: '%e %b',
+                            year: '%b'
+                        },
+                        plotBands: {{! data['weekends_plot_bands'] }},
+                        plotLines: {{! data['months_for_days_plot_lines'] }}
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Worked hours'
+                        }
+                    },
+                    tooltip: {
+                        formatter: function() {
+                            var s = Highcharts.dateFormat('%d %B %Y (%A)', this.x);
+
+                            s += '<br />';
+                            s += '<b>Total: ' + format_time(this.points[0].total) + '</b>';
+
+                            $.each(this.points, function(i, point) {
+                                if (point.y == 0) {
+                                    return;
+                                }
+
+                                s += '<br />';
+                                s += '<span style="color: ' + point.series.color + '">' + point.series.name + '</span>';
+                                s += ': ';
+                                s += format_time(point.y);
+                            });
+
+                            return s;
+                        },
+                        shared: true
+                    },
+                    plotOptions: {
+                        series: {
+                            stacking: 'normal'
+                        }
+                    },
+
+                    series: {{! data['hours_by_days_series'] }}
+                });
+
+            $('#graph-hours-by-weeks').highcharts({
+                    chart: {
+                        type: 'column',
+                        zoomType: 'x'
+                    },
+                    title: {
+                        text: 'Workload by weeks'
+                    },
+                    xAxis: {
+                        categories: {{! data['weeks_categories'] }},
+                        labels: {
+                            rotation: -90,
+                            formatter: function() {
+                                return Highcharts.dateFormat('%b %y', this.value[0]);
+                            }
+                        },
+                        plotLines: {{! data['months_plot_lines'] }}
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Worked hours'
+                        }
+                    },
+                    tooltip: {
+                        formatter: function() {
+                            // Format date range, avoid duplication. E.g.
+                            // 03 - 09 June 2013
+                            // 27 May - 03 June 2013
+                            // 31 December 2012 - 06 January 2013
+                            var d1 = new Date(this.x[0]);
+                            var d2 = new Date(this.x[1]);
+
+                            var s = Highcharts.dateFormat('%d', d1);
+
+                            if (d1.getMonth() != d2.getMonth()) {
+                                s += Highcharts.dateFormat(' %B', d1);
+                            }
+
+                            if (d1.getYear() != d2.getYear()) {
+                                s += Highcharts.dateFormat(' %Y', d1);
+                            }
+
+                            s += ' - ';
+                            s += Highcharts.dateFormat('%d %B %Y', d2);
+
+                            s += '<br />';
+                            s += '<b>Total: ' + format_time(this.points[0].total) + '</b>';
+
+                            $.each(this.points, function(i, point) {
+                                if (point.y == 0) {
+                                    return;
+                                }
+
+                                s += '<br />';
+                                s += '<span style="color: ' + point.series.color + '">' + point.series.name + '</span>';
+                                s += ': ';
+                                s += format_time(point.y);
+                            });
+
+                            return s;
+                        },
+                        shared: true
+                    },
+                    plotOptions: {
+                        series: {
+                            stacking: 'normal'
+                        }
+                    },
+
+                    series: {{! data['hours_by_weeks_series'] }}
+                });
+
+            $('#graph-earnings-by-weeks').highcharts({
+                    chart: {
+                        type: 'column',
+                        zoomType: 'x'
+                    },
+                    title: {
+                        text: 'Earnings by weeks'
+                    },
+                    xAxis: {
+                        categories: {{! data['weeks_categories'] }},
+                        labels: {
+                            rotation: -90,
+                            formatter: function() {
+                                return Highcharts.dateFormat('%b %y', this.value[0]);
+                            }
+                        },
+                        plotLines: {{! data['months_plot_lines'] }}
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Earned money ($)'
+                        },
+                        labels: {
+                            format: '${value}'
+                        }
+                    },
+                    tooltip: {
+                        formatter: function() {
+                            // Format date range, avoid duplication. E.g.
+                            // 03 - 09 June 2013
+                            // 27 May - 03 June 2013
+                            // 31 December 2012 - 06 January 2013
+                            var d1 = new Date(this.x[0]);
+                            var d2 = new Date(this.x[1]);
+
+                            var s = Highcharts.dateFormat('%d', d1);
+
+                            if (d1.getMonth() != d2.getMonth()) {
+                                s += Highcharts.dateFormat(' %B', d1);
+                            }
+
+                            if (d1.getYear() != d2.getYear()) {
+                                s += Highcharts.dateFormat(' %Y', d1);
+                            }
+
+                            s += ' - ';
+                            s += Highcharts.dateFormat('%d %B %Y', d2);
+
+                            s += '<br />';
+                            s += '<b>Total: $' + Highcharts.numberFormat(this.points[0].total, 0) + '</b>';
+
+                            $.each(this.points, function(i, point) {
+                                if (point.y == 0) {
+                                    return;
+                                }
+
+                                s += '<br />';
+                                s += '<span style="color: ' + point.series.color + '">' + point.series.name + '</span>';
+                                s += ': ';
+                                s += '$' + Highcharts.numberFormat(point.y, 0);
+                            });
+
+                            return s;
+                        },
+                        shared: true
+                    },
+                    plotOptions: {
+                        series: {
+                            stacking: 'normal'
+                        }
+                    },
+
+                    series: {{! data['earnings_by_weeks_series'] }}
+                });
+
+            $('#graph-hours-by-months').highcharts({
+                    chart: {
+                        type: 'column',
+                        zoomType: 'x'
+                    },
+                    title: {
+                        text: 'Workload by months'
+                    },
+                    xAxis: {
+                        categories: {{! data['months_categories'] }},
+                        labels: {
+                            formatter: function() {
+                                return Highcharts.dateFormat('%b %y', this.value);
+                            }
+                        },
+                        plotLines: {{! data['years_plot_lines'] }}
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Worked hours'
+                        }
+                    },
+                    tooltip: {
+                        formatter: function() {
+                            var s = Highcharts.dateFormat('%B %Y', this.x);
+
+                            s += '<br />';
+                            s += '<b>Total: ' + format_time(this.points[0].total) + '</b>';
+
+                            $.each(this.points, function(i, point) {
+                                if (point.y == 0) {
+                                    return;
+                                }
+
+                                s += '<br />';
+                                s += '<span style="color: ' + point.series.color + '">' + point.series.name + '</span>';
+                                s += ': ';
+                                s += format_time(point.y);
+                            });
+
+                            return s;
+                        },
+                        shared: true
+                    },
+                    plotOptions: {
+                        series: {
+                            stacking: 'normal'
+                        }
+                    },
+
+                    series: {{! data['hours_by_months_series'] }}
+                });
+
+            $('#graph-earnings-by-months').highcharts({
+                    chart: {
+                        type: 'column',
+                        zoomType: 'x'
+                    },
+                    title: {
+                        text: 'Earnings by months'
+                    },
+                    xAxis: {
+                        categories: {{! data['months_categories'] }},
+                        labels: {
+                            formatter: function() {
+                                return Highcharts.dateFormat('%b %y', this.value);
+                            }
+                        },
+                        plotLines: {{! data['years_plot_lines'] }}
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Earned money ($)'
+                        },
+                        labels: {
+                            format: '${value}'
+                        }
+                    },
+                    tooltip: {
+                        formatter: function() {
+                            var s = Highcharts.dateFormat('%B %Y', this.x);
+
+                            s += '<br />';
+                            s += '<b>Total: $' + Highcharts.numberFormat(this.points[0].total, 0) + '</b>';
+
+                            $.each(this.points, function(i, point) {
+                                if (point.y == 0) {
+                                    return;
+                                }
+
+                                s += '<br />';
+                                s += '<span style="color: ' + point.series.color + '">' + point.series.name + '</span>';
+                                s += ': $';
+                                s += Highcharts.numberFormat(point.y, 0);
+                            });
+
+                            return s;
+                        },
+                        shared: true
+                    },
+                    plotOptions: {
+                        series: {
+                            stacking: 'normal'
+                        }
+                    },
+
+                    series: {{! data['earnings_by_months_series'] }}
+                });
+
+                $('#pie-total-hours').highcharts({
+                    title: {
+                        text: 'Total workload'
+                    },
+                    tooltip: {
+                        formatter: function() {
+                            return this.point.name + ': ' + format_time(this.point.y);
+                        }
+                    },
+                    plotOptions: {
+                        pie: {
+                            dataLabels: {
+                                formatter: function() {
+                                    return this.point.name + ': ' + format_time(this.point.y);
+                                }
+                            },
+                            allowPointSelect: true,
+                            showInLegend: true
+                        }
+                    },
+                    series: {{! data['total_hours_pie'] }}
+                });
+
+                $('#pie-total-earnings').highcharts({
+                    title: {
+                        text: 'Total earnings'
+                    },
+                    tooltip: {
+                        formatter: function() {
+                            return this.point.name + ': $' + Highcharts.numberFormat(this.point.y, 0);
+                        }
+                    },
+                    plotOptions: {
+                        pie: {
+                            dataLabels: {
+                                formatter: function() {
+                                    return this.point.name + ': $' + Highcharts.numberFormat(this.point.y, 0);
+                                }
+                            },
+                            allowPointSelect: true,
+                            showInLegend: true
+                        }
+                    },
+                    series: {{! data['total_earnings_pie'] }}
+                });
+            });
+
+            function format_time(value) {
+                // 2.5 -> 2:30
+                var int_part = parseInt(value);
+                return int_part + ':' + _0(parseInt((value - int_part) / (1 / 60)));
+            }
+
+            function _0(value) {
+                var res = value.toString();
+                if (value < 10) {
+                    res = '0' + res;
+                }
+                return res;
+            }
+        </script>
+    %end
+%end
+
+<div class="graphs">
+    <form method="get">
+        <label for="from_date">From date: </label>
+        <input name="from_date" id="from_date" value="{{ from_date or '' }}">
+
+        <label for="to_date">To date: </label>
+        <input name="to_date" id="to_date" value="{{ to_date or '' }}">
+
+        <button>Process</button>
+    </form>
+
+    %if data:
+        <p>Total worked hours: {{ data['total_hours'] }}</p>
+        <p>Total earned money: ${{ data['total_earnings'] }}</p>
+    %end
+
+    <div id="graph-hours-by-days" class="graph"></div>
+    <div id="graph-hours-by-weeks" class="graph"></div>
+    <div id="graph-earnings-by-weeks" class="graph"></div>
+    <div id="graph-hours-by-months" class="graph"></div>
+    <div id="graph-earnings-by-months" class="graph"></div>
+
+    <div class="graph">
+        <div id="pie-total-hours" class="pie"></div>
+        <div id="pie-total-earnings" class="pie"></div>
+    </div>
+</div>
+
+%rebase templates/base.html extra_head=extra_head, title=title

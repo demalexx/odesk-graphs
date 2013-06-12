@@ -1,0 +1,134 @@
+<p>
+    In order to get stats from oDesk you need to follow few simple steps.
+</p>
+
+<div class="setup">
+
+    <table>
+        <tr>
+            <td class="step-num">1</td>
+            <td>
+                <p>Create oDesk keys <a href="https://www.odesk.com/services/api/apply">here</a></p>
+
+                <ul>
+                    <li>Project title: any</li>
+                    <li>Project type: Web</li>
+                    <li>Project's description: any</li>
+                    <li>Auth type: OAuth 1.0</li>
+                </ul>
+            </td>
+            <td>
+                %if steps['keys']['completed']:
+                    <img src="/static/step-done.png" />
+                %else:
+                    <img src="/static/step-undone.png" />
+                %end
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="3"><hr /></td>
+        </tr>
+
+        <tr>
+            <td class="step-num">2</td>
+            <td>
+                %if steps['keys']['completed']:
+                    <p>Keys provided</p>
+                %else:
+                    <p>Type Key and Secret here:</p>
+
+                    <form method="post">
+                        <input name="keys" value="1" type="hidden">
+
+                        <p>
+                            <label for="key">Key: </label>
+                            <input name="key" id="key" size="40">
+                        </p>
+
+                        <p>
+                            <label for="secret">Secret: </label>
+                            <input name="secret" id="secret" size="40">
+                        </p>
+
+                        <p>
+                            <button>Save</button>
+                        </p>
+                    </form>
+                %end
+            </td>
+            <td>
+                %if steps['keys']['completed']:
+                    <img src="/static/step-done.png" />
+                %else:
+                    <img src="/static/step-undone.png" />
+                %end
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="3"><hr /></td>
+        </tr>
+
+        <tr>
+            <td class="step-num">3</td>
+            <td>
+                %if steps['authorize']['completed']:
+                    <p>Authorized</p>
+                %else:
+                    %if steps['authorize']['authorize_url']:
+                        <p>
+                            Authorize access by visiting
+                            <a href="{{ steps['authorize']['authorize_url'] }}">this link</a>
+                            (you will be redirected back after authorization)
+                        </p>
+                    %else:
+                        <p>Authorize access (set Key and Secret to get authorize URL)</p>
+                    %end
+                %end
+            </td>
+            <td>
+                %if steps['authorize']['completed']:
+                    <img src="/static/step-done.png" />
+                %else:
+                    <img src="/static/step-undone.png" />
+                %end
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="3"><hr /></td>
+        </tr>
+
+        <tr>
+            <td class="step-num">4</td>
+            <td>
+                <p>
+                    You're ready now to get stats from oDesk.
+
+                    %if steps['last']['user_info']:
+                        <a href="/">Go to stats page</a>
+                    %end
+                </p>
+
+                %if steps['last']['user_info']:
+                    <p>
+                        Connected oDesk user:
+                        {{ steps['last']['user_info']['first_name'] }}
+                        {{ steps['last']['user_info']['last_name'] }} -
+                        <a href="{{ steps['last']['user_info']['public_url'] }}">{{ steps['last']['user_info']['id'] }}</a>
+                    </p>
+                %end
+            </td>
+            <td>
+                %if steps['last']['user_info']:
+                    <img src="/static/step-done.png" />
+                %else:
+                    <img src="/static/step-undone.png" />
+                %end
+            </td>
+        </tr>
+    </table>
+</div>
+
+%rebase templates/base.html title=title

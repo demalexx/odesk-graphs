@@ -1,0 +1,33 @@
+body {
+    font-family: arial, sans-serif;
+}
+
+.setup table {
+    width: 50%;
+}
+
+.setup table td {
+    vertical-align: top;
+}
+
+.setup table .step-num {
+    width: 50px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.setup form label {
+    display: inline-block;
+    width: 100px;
+}
+
+.graphs .graph {
+    margin-left: 2%;
+    margin-right: 2%;
+}
+
+.graphs .pie {
+    display: inline-block;
+    width: 49%;
+}
